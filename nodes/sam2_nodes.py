@@ -16,7 +16,7 @@ import folder_paths
 
 script_directory = os.path.dirname(os.path.abspath(__file__))
 
-class DownloadAndLoadSAM2Model:
+class TensorOps_DownloadAndLoadSAM2Model:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
@@ -41,7 +41,7 @@ class DownloadAndLoadSAM2Model:
     RETURN_TYPES = ("SAM2MODEL",)
     RETURN_NAMES = ("sam2_model",)
     FUNCTION = "loadmodel"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def loadmodel(self, model, segmentor, device, precision):
         if precision != 'fp32' and device == 'cpu':
@@ -90,7 +90,7 @@ class DownloadAndLoadSAM2Model:
         return (sam2_model,)
 
 
-class Florence2toCoordinates:
+class TensorOps_Florence2toCoordinates:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -105,7 +105,7 @@ class Florence2toCoordinates:
     RETURN_TYPES = ("STRING", "BBOX")
     RETURN_NAMES =("center_coordinates", "bboxes")
     FUNCTION = "segment"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def segment(self, data, index, batch=False):
         print(data)
@@ -154,7 +154,7 @@ class Florence2toCoordinates:
         print("Coordinates:", coordinates)
         return (coordinates, bboxes)
 
-class Sam2Segmentation:
+class TensorOps_Sam2Segmentation:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -176,7 +176,7 @@ class Sam2Segmentation:
     RETURN_TYPES = ("MASK", )
     RETURN_NAMES =("mask", )
     FUNCTION = "segment"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def segment(self, image, sam2_model, keep_model_loaded, coordinates_positive=None, coordinates_negative=None,
                 individual_objects=False, bboxes=None, mask=None):
@@ -388,7 +388,7 @@ class Sam2Segmentation:
         mask_tensor = torch.stack(out_list, dim=0).cpu().float()
         return (mask_tensor,)
 
-class Sam2VideoSegmentationAddPoints:
+class TensorOps_Sam2VideoSegmentationAddPoints:
     @classmethod
     def IS_CHANGED(s): # TODO: smarter reset?
         return ""
@@ -411,7 +411,7 @@ class Sam2VideoSegmentationAddPoints:
     RETURN_TYPES = ("SAM2MODEL", "SAM2INFERENCESTATE", )
     RETURN_NAMES =("sam2_model", "inference_state", )
     FUNCTION = "segment"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def segment(self, sam2_model, coordinates_positive, frame_index, object_index, image=None, coordinates_negative=None, prev_inference_state=None):
         offload_device = mm.unet_offload_device()
@@ -496,7 +496,7 @@ class Sam2VideoSegmentationAddPoints:
             }
         return (sam2_model, inference_state,)
 
-class Sam2VideoSegmentation:
+class TensorOps_Sam2VideoSegmentation:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -510,7 +510,7 @@ class Sam2VideoSegmentation:
     RETURN_TYPES = ("MASK", )
     RETURN_NAMES =("mask", )
     FUNCTION = "segment"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def segment(self, sam2_model, inference_state, keep_model_loaded):
         offload_device = mm.unet_offload_device()
@@ -610,7 +610,7 @@ def get_background_mask(tensor: torch.Tensor):
     return background_mask
 
 
-class Sam2AutoSegmentation:
+class TensorOps_Sam2AutoSegmentation:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -637,7 +637,7 @@ class Sam2AutoSegmentation:
     RETURN_TYPES = ("MASK", "MASK", "IMAGE", "BBOX",)
     RETURN_NAMES =("mask", "background_mask", "segmented_image", "bbox" ,)
     FUNCTION = "segment"
-    CATEGORY = "SAM2"
+    CATEGORY = "TensorOps_SAM2"
 
     def segment(self, image, sam2_model, points_per_side, points_per_batch, pred_iou_thresh, stability_score_thresh,
                 stability_score_offset, crop_n_layers, box_nms_thresh, crop_n_points_downscale_factor, min_mask_region_area,
@@ -726,18 +726,19 @@ class Sam2AutoSegmentation:
         return (mask_tensor.cpu().float(), torch.stack(background_list, axis=0).cpu().float(), segment_image_tensor.cpu().float(), bbox_list)
 
 NODE_CLASS_MAPPINGS = {
-    "DownloadAndLoadSAM2Model": DownloadAndLoadSAM2Model,
-    "Sam2Segmentation": Sam2Segmentation,
-    "Florence2toCoordinates": Florence2toCoordinates,
-    "Sam2AutoSegmentation": Sam2AutoSegmentation,
-    "Sam2VideoSegmentationAddPoints": Sam2VideoSegmentationAddPoints,
-    "Sam2VideoSegmentation": Sam2VideoSegmentation
+    "TensorOps_DownloadAndLoadSAM2Model": TensorOps_DownloadAndLoadSAM2Model,
+    "TensorOps_Sam2Segmentation": TensorOps_Sam2Segmentation,
+    "TensorOps_Florence2toCoordinates": TensorOps_Florence2toCoordinates,
+    "TensorOps_Sam2VideoSegmentationAddPoints": TensorOps_Sam2VideoSegmentationAddPoints,
+    "TensorOps_Sam2VideoSegmentation": TensorOps_Sam2VideoSegmentation,
+    "TensorOps_Sam2AutoSegmentation": TensorOps_Sam2AutoSegmentation,
 }
+
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "DownloadAndLoadSAM2Model": "(Down)Load SAM2Model",
-    "Sam2Segmentation": "Sam2Segmentation",
-    "Florence2toCoordinates": "Florence2 Coordinates",
-    "Sam2AutoSegmentation": "Sam2AutoSegmentation",
-    "Sam2VideoSegmentationAddPoints": "Sam2VideoSegmentationAddPoints",
-    "Sam2VideoSegmentation": "Sam2VideoSegmentation"
+    "TensorOps_DownloadAndLoadSAM2Model": "TensorOps - Download SAM2 Model",
+    "TensorOps_Sam2Segmentation": "TensorOps - SAM2 Segmentation",
+    "TensorOps_Florence2toCoordinates": "TensorOps - Florence2 to Coordinates",
+    "TensorOps_Sam2VideoSegmentationAddPoints": "TensorOps - SAM2 Video Segmentation Add Points",
+    "TensorOps_Sam2VideoSegmentation": "TensorOps - SAM2 Video Segmentation",
+    "TensorOps_Sam2AutoSegmentation": "TensorOps - SAM2 Auto Segmentation",
 }

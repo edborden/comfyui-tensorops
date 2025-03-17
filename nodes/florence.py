@@ -32,7 +32,7 @@ script_directory = os.path.dirname(os.path.abspath(__file__))
 
 from transformers import AutoModelForCausalLM, AutoProcessor
 
-class DownloadAndLoadFlorence2Model:
+class TensorOps_DownloadAndLoadFlorence2Model:
     @classmethod
     def INPUT_TYPES(s):
         return {"required": {
@@ -63,7 +63,7 @@ class DownloadAndLoadFlorence2Model:
     RETURN_TYPES = ("FL2MODEL",)
     RETURN_NAMES = ("florence2_model",)
     FUNCTION = "loadmodel"
-    CATEGORY = "Florence2"
+    CATEGORY = "TensorOps_Florence2"
 
     def loadmodel(self, model, precision, attention):
         device = mm.get_torch_device()
@@ -116,7 +116,7 @@ def calculate_bounding_box(width, height, flat_points) -> List[float]:
 
     return [min_x / width, min_y / height, max_x / width, max_y / height]
     
-class Florence2Run:
+class TensorOps_Florence2Run:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -153,7 +153,7 @@ class Florence2Run:
     RETURN_TYPES = ("IMAGE", "MASK", "STRING", "JSON")
     RETURN_NAMES =("image", "mask", "caption", "data") 
     FUNCTION = "encode"
-    CATEGORY = "Florence2"
+    CATEGORY = "TensorOps_Florence2"
 
     def encode(self, image, text_input, florence2_model, task, fill_mask, keep_model_loaded=False, 
             num_beams=3, max_new_tokens=1024, do_sample=True, output_mask_select=""):
@@ -450,10 +450,11 @@ class Florence2Run:
         return (out_tensor, out_mask_tensor, out_results, out_data)
      
 NODE_CLASS_MAPPINGS = {
-    "DownloadAndLoadFlorence2Model": DownloadAndLoadFlorence2Model,
-    "Florence2Run": Florence2Run,
+    "TensorOps_DownloadAndLoadFlorence2Model": TensorOps_DownloadAndLoadFlorence2Model,
+    "TensorOps_Florence2Run": TensorOps_Florence2Run,
 }
+
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "DownloadAndLoadFlorence2Model": "DownloadAndLoadFlorence2Model",
-    "Florence2Run": "Florence2Run",
+    "TensorOps_DownloadAndLoadFlorence2Model": "TensorOps - Download Florence2 Model",
+    "TensorOps_Florence2Run": "TensorOps - Florence2 Run",
 }
